@@ -40,6 +40,7 @@ const LoginTechical = () => {
     if (registerEmail.length > 0) {
       const res = await UserCtx.setUserInfo(registerEmail[0].ID, 1)
       res === 'complete' &&
+      createApi(registerEmail);
         router.push(`/oficinas-credenciadas/agenda-recorrente`)
     } else {
       GlobalCtx.setInformationsModal({
@@ -85,7 +86,10 @@ const LoginTechical = () => {
 
     if (key === 13) validateFields()
   }
-
+  const createApi= async (data) => {
+  const list = await fetch(`http://localhost:3000/api/tecnical`, {method: 'POST',body:JSON.stringify(data),headers: new Headers({'Content-Type': 'application/json'})});
+  console.log(await list.json())
+}
   return (
     <Styles.LoginWrapper>
       <Styles.LoginContent>
