@@ -1,5 +1,6 @@
 import { STATUS_LIST } from 'constants/globals'
 import { DAYS_WEEK } from 'constants/sheduling'
+import { server } from './index';
 
 //Validação de CPF
 export const isValidCPF = (cpf) => {
@@ -40,7 +41,6 @@ export const isValidCPF = (cpf) => {
 export const dateRandomGenerate = (min, max) => {
   const todayMonth = new Date().getMonth()
   let dayRandom = Math.ceil(Math.random() * (max - min + 1) + min)
-
   return `2021-${todayMonth + 1}-${dayRandom}`
 }
 
@@ -59,12 +59,9 @@ export const numberAvarageReviews = () => {
 
 //Formatar data para exibir
 export const formatedDateShow = (date) => {
-  let newDate = new Date(String(date).replace(/-/gi, '/'))
-
-  return `${newDate.getDay()}/${
-    newDate.getMonth() + 1
-  }/${newDate.getFullYear()}`
+ return date.substring(8,10)+"/"+ date.substring(5,7) +"/" + date.substring(0,4)
 }
+
 
 //Valida o tamanho do objeto
 export const validateLengthObject = (obj) => {
@@ -74,24 +71,22 @@ export const validateLengthObject = (obj) => {
 //Converter em Array
 export const convertInArray = (el) => Array.prototype.slice.call(el)
 
-const dayWeekFormated = (day, formated = 'BD') => {
-  const newDay = new Date(day)
+const dayWeekFormated = (newDay, formated = 'BD') => {
 
   if (formated === 'BD') {
-    return `${newDay.getFullYear()}-${
-      newDay.getMonth() + 1
-    }-${newDay.getDate()}`
+    return newDay.toISOString().slice(0, 10);
   }
 
   return `${newDay.getDate()}/${newDay.getMonth() + 1}/${newDay.getFullYear()}`
 }
 
-const dateRegulator = (day, weekDayCurrency, weekDay) => {
-  if (weekDayCurrency > weekDay) {
-    return day - (weekDayCurrency - weekDay)
-  }
-  return day + (weekDay - weekDayCurrency)
+const dateRegulator = (week,day) => {
+  var today = new Date();
+  const regulator = (7*week) + (day)
+  today.setDate(today.getDate() - today.getDay() + regulator)
+  return today
 }
+
 
 export const daysWeekList = (
   week,
@@ -110,10 +105,8 @@ export const daysWeekList = (
   Array(7)
     .fill(null)
     .forEach((el, index) => {
-      //dia atual
       const reduceDate = dateRegulator(
-        today.getDate(),
-        new Date().getDay(),
+        week,
         index
       )
 
@@ -122,32 +115,25 @@ export const daysWeekList = (
         values.exceptions.length > 0
           ? values.exceptions.filter((expectionDay) => {
               const dayFormated = new Date(expectionDay.day.replace(/-/gi, '/'))
-              return dayFormated === new Date().setDate(reduceDate)
+              return dayFormated === reduceDate
             })
           : []
-
       const periods =
         validateExceptions.length > 0 ? validateExceptions : valuesDays[index]
-
       daysWeekListForInstallations[index] = {
         dayWeek: DAYS_WEEK[index],
         data:
-          dayWeek === index
-            ? dayWeekFormated(today, 'WEB')
-            : dayWeekFormated(new Date().setDate(reduceDate), 'WEB'),
-        dataDB:
-          dayWeek === index
-            ? dayWeekFormated(today)
-            : dayWeekFormated(new Date().setDate(reduceDate)),
+           dayWeekFormated(reduceDate, 'WEB'),
+        date:
+            dayWeekFormated(reduceDate),
         className:
-          dayWeekFormated(dayAccessToday, 'WEB') ===
-          dayWeekFormated(new Date().setDate(reduceDate), 'WEB')
+          dayWeekFormated(dayAccessToday, 'WEB',"4") ===
+          dayWeekFormated(reduceDate, 'WEB',"4")
             ? 'isToday'
             : '',
         periodsDay: periods
       }
     })
-
   return daysWeekListForInstallations
 }
 
@@ -157,3 +143,11 @@ export const findStatusShow = (value) => {
     .map((status) => status.label)
     .join('')
 }
+export const getSunday = (value) =>{
+  var today = new Date();
+  today.setDate(today.getDate() - today.getDay() + value)
+  return today.toISOString().slice(0, 10);
+}
+const dev = process.env.NODE_ENV !== 'production';
+//export const serverPath = dev ? 'http://localhost:3000' : 'https://bravox-app.herokuapp.com';
+export const serverPath = 'https://extensao-bravox2-master-q0biqf3h9-joeypinto.vercel.app'
