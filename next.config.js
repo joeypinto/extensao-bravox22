@@ -15,5 +15,19 @@ module.exports = {
     NEXT_PUBLIC_MAPBOX_TOKEN: 'pk.eyJ1IjoidGFsZWNyb3NzIiwiYSI6ImNrbTlob21kNjB2bGsyd251aWozcHk4bGcifQ.KVVkspwTt5Sv-Swb85zAsA',
     NEXT_PUBLIC_MAPBOX_USER:  'talecross',
     NEXT_PUBLIC_MAPBOX_STYLE: 'ckrct6t3k0d3217ns0qhsbhyh'
+  },
+  async headers() {
+    return [
+      {
+        // matching all API routes
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+          { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
+        ]
+      }
+    ]
   }
 }
